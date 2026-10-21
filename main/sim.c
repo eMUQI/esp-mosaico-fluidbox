@@ -9,6 +9,9 @@
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#ifdef ESP_PLATFORM
+#include "esp_attr.h"
+#endif
 
 // Grid cells must span at least one smoothing radius on every axis.
 #define GRID_CX 17
@@ -56,7 +59,12 @@ static float s_rest_density;
 static float s_cell_scale_x, s_cell_scale_y, s_cell_scale_z;
 
 // Only the simulation task mutates particles; readers copy published state under the mutex.
+#ifdef ESP_PLATFORM
+/* Exchange buffers use PSRAM; the solver's working arrays remain in internal SRAM. */
+static EXT_RAM_BSS_ATTR sim_particle_view_t s_view_pool[2][PARTICLE_MAX];
+#else
 static sim_particle_view_t s_view_pool[2][PARTICLE_MAX];
+#endif
 static sim_particle_view_t *s_view_work = s_view_pool[0];
 static sim_particle_view_t *s_view_pub = s_view_pool[1];
 static int s_view_pub_count;

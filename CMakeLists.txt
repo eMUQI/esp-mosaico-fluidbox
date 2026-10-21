@@ -1,4 +1,16 @@
 cmake_minimum_required(VERSION 3.16)
 set(IDF_TARGET esp32s31)
-include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+set(MOSAICO_UTILS_ROOT "${CMAKE_CURRENT_LIST_DIR}/external/esp-mosaico-utils")
+set(ESP_IRIS_BUILD_PROFILE "usb" CACHE STRING "Iris dependency profile")
+if(NOT SDKCONFIG)
+    set(SDKCONFIG "${CMAKE_BINARY_DIR}/sdkconfig")
+endif()
+if(NOT SDKCONFIG_DEFAULTS)
+    set(SDKCONFIG_DEFAULTS "${CMAKE_CURRENT_LIST_DIR}/sdkconfig.defaults")
+endif()
+list(APPEND EXTRA_COMPONENT_DIRS
+    "${MOSAICO_UTILS_ROOT}/ESP-Iris/components/esp_iris"
+    "${MOSAICO_UTILS_ROOT}/esp-mosaico-vibe-mode/components/esp_mosaico_app_recovery")
+include("${MOSAICO_UTILS_ROOT}/esp-mosaico-vibe-mode/cmake/mosaico_idf_project.cmake")
 project(mosaico-fluidbox VERSION 0.1.0)
+include("${MOSAICO_UTILS_ROOT}/mosaico-tools/cmake/system_update.cmake")

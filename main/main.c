@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdatomic.h>
 #include "board.h"
 #include "config.h"
@@ -6,14 +5,13 @@
 #include "imu.h"
 #include "render.h"
 #include "esp_heap_caps.h"
+#include "esp_private/esp_clk.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "tinyusb.h"
-#include "tinyusb_cdc_acm.h"
-#include "tinyusb_console.h"
-#include "tinyusb_default_config.h"
+#include "esp_iris.h"
+#include "iris_ota_support.h"
 
 static atomic_uint s_steps, s_render_us, s_imu_misses;
 // Frame totals are updated and reset together, so every average covers the same frames.
@@ -74,12 +72,9 @@ static void sim_task(void *arg)
 
 void app_main(void)
 {
-    tinyusb_config_t usb = TINYUSB_DEFAULT_CONFIG();
-    ESP_ERROR_CHECK(tinyusb_driver_install(&usb));
-    const tinyusb_config_cdcacm_t cdc = {.cdc_port = TINYUSB_CDC_ACM_0};
-    ESP_ERROR_CHECK(tinyusb_cdcacm_init(&cdc));
-    ESP_ERROR_CHECK(tinyusb_console_init(TINYUSB_CDC_ACM_0));
-    setvbuf(stdout, NULL, _IONBF, 0);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_iris_boot_probe());
+    iris_ota_support_start();
+    ESP_LOGI("fluidbox", "CPU frequency: %d MHz", esp_clk_cpu_freq() / 1000000);
     i2c_master_bus_handle_t bus;
     ESP_ERROR_CHECK(board_init(&bus));
     ESP_ERROR_CHECK(display_init());
@@ -92,6 +87,7 @@ void app_main(void)
     ESP_ERROR_CHECK(xTaskCreatePinnedToCore(render_task, "renderer", 4096, NULL, 5, NULL, 0) == pdPASS ? ESP_OK : ESP_ERR_NO_MEM);
     // Retain cumulative underruns to diagnose intermittent display faults.
     uint32_t last_steps = 0, underruns_since_boot = 0;
+    bool healthy = false;
     int64_t previous = esp_timer_get_time();
     for (;;) {
         vTaskDelay(pdMS_TO_TICKS(2000));
@@ -105,16 +101,21 @@ void app_main(void)
         s_frame_sum = (render_stats_t){0};
         taskEXIT_CRITICAL(&s_frame_lock);
         const display_stats_t sent = display_take_stats();
+        /* Confirm application health only after the display has presented a frame. */
+        if (!healthy && sent.frames > 0) {
+            ESP_ERROR_CHECK(esp_iris_mark_healthy());
+            healthy = true;
+        }
         underruns_since_boot += sent.underruns;
         const uint32_t steps = atomic_load(&s_steps);
         sim_stats_t st;
         sim_stats(&st);
-        ESP_LOGD("fluidbox", "%.1f fps | %.1f Hz | %d particles | grid/density/relax %d/%d/%d us | render %u us | rho %.2f/%.2f | SRAM %u | IMU misses %u | pairs %d | clamped %d | speed %.0f/%.0f",
+        ESP_LOGI("fluidbox", "%.1f fps | %.1f Hz | %d particles | grid/density/relax %d/%d/%d us | render %u us | rho %.2f/%.2f | SRAM %u | IMU misses %u | pairs %d | clamped %d | speed %.0f/%.0f",
                  frames / elapsed, (steps - last_steps) / elapsed, PARTICLE_COUNT,
                  st.us_grid, st.us_density, st.us_relax, atomic_load(&s_render_us),
                  st.mean_density, st.rest_density, (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL), atomic_load(&s_imu_misses), st.pairs, st.clamped, st.mean_speed, st.max_speed);
         const float drawn = frames ? frames : 1, shown = sent.frames ? sent.frames : 1;
-        ESP_LOGD("profile", "CPU %.0f us (prep %.0f) | stage %.0f us | slot wait %.0f us | %.0f bytes/frame | %.1f bands/frame"
+        ESP_LOGI("profile", "CPU %.0f us (prep %.0f) | stage %.0f us | slot wait %.0f us | %.0f bytes/frame | %.1f bands/frame"
                  " | sent %lu: scan wait %.0f us, transfer %.0f us, TE timeouts %lu, underruns %lu (%lu since boot) | QSPI %d MHz",
                  sum.cpu_us / drawn, sum.prep_us / drawn, sum.stage_us / drawn, sum.slot_wait_us / drawn,
                  sum.bytes / drawn, sum.bands / drawn, (unsigned long)sent.frames, sent.scan_wait_us / shown,
