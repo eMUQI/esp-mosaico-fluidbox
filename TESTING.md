@@ -12,13 +12,6 @@ The official Iris and Ideas product validators accepted the package. The wired B
 
 The final no-XIP build also passed a complete normal application → Vibe Mode → Iris update → healthy normal application cycle in approximately 20 seconds. Firmware identity, system partition hashes and the device's healthy confirmation passed the official installer checks.
 
-### Checks before release
-
-- Compare all five modes with the standalone firmware using the same device pose and sampling duration. Particle FPS is currently comparable to the historical sample, but simulation frequency has no matched baseline.
-- Check sustained operation, mode changes, reset behavior, and display quality on the device.
-- Install the complete wired BIN on a device with backed-up data, then verify the application and Vibe Mode recovery path.
-- Select the next version and rebuild both release artifacts with that version before publishing.
-
 ## Historical standalone firmware
 
 A rough check on Mosaico / ESP32-S31 with ESP-IDF v6.1, 1,200 particles and QSPI at 60 MHz, before Iris integration. The two performance log lines in `main/main.c` were raised from Debug to Info so they printed.
