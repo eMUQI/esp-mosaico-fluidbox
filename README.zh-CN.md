@@ -14,17 +14,17 @@
 
 支持 Mosaico V1.0、V1.1 和 V1.2，通过 eFuse 自动识别板卡版本；未知或未写入版本的设备会报告错误。显示为 480×480 CO5300，运动传感器为 BMI270。暂不支持触摸操作。Iris 提供 USB 日志和恢复模式切换，固件安装由 Vibe Mode 完成。
 
-版本 **0.1.0**。帧率随模式和姿态变化，见[测试结果](TESTING.md)。
+版本 **0.2.0**。帧率随模式和姿态变化，见[测试结果](TESTING.md)。
 
 ## 烧录
 
-从发布页下载 `mosaico-fluidbox-0.1.0.bin`。烧录会覆盖镜像地址范围内的原固件及数据，包括 NVS 设置，请先保存需要保留的内容。
+从发布页下载 `mosaico-fluidbox-0.2.0.bin`。烧录会覆盖镜像地址范围内的原固件及数据，包括 NVS 设置，请先保存需要保留的内容。
 
 1. 按住 **BOOT** 并重启或重新上电，进入 ROM 下载模式。
 2. 使用 ESP-IDF 6.2 环境中支持 ESP32-S31 的 esptool，在该文件所在目录执行以下命令，将 `PORT` 替换为重新枚举后的串口：
 
    ```sh
-   python -m esptool --chip esp32s31 --port PORT --before no-reset --after no-reset --no-stub write-flash --flash-size 16MB 0x0 mosaico-fluidbox-0.1.0.bin
+   python -m esptool --chip esp32s31 --port PORT --before no-reset --after no-reset --no-stub write-flash --flash-size 16MB 0x0 mosaico-fluidbox-0.2.0.bin
    ```
 
 3. 烧录完成后释放 BOOT 并重新上电。运行时 USB 日志端口可能与下载端口不同。
@@ -33,7 +33,7 @@
 
 ### Iris 安装
 
-使用 `mosaico-fluidbox-0.1.0.irisfw`，通过官方 Iris 安装器安装，或在 Ideas 上传时选择「添加 Iris 固件」。该包要求 Vibe Mode **0.2.0** 和 `esp-mosaico/v2` 契约。首次安装前先进入 Vibe Mode。安装会替换应用布局及代码，请先备份原应用数据。
+使用 `mosaico-fluidbox-0.2.0.irisfw`，通过官方 Iris 安装器安装，或在 Ideas 上传时选择「添加 Iris 固件」。该包要求 Vibe Mode **0.2.0** 和 `esp-mosaico/v2` 契约。首次安装前先进入 Vibe Mode。安装会替换应用布局及代码，请先备份原应用数据。
 
 包内包含构建生成的 4 KiB 分区表（`0x8000`）和应用（`0x210000`），保留前 2 MiB 系统分区布局，不包含 bootloader、Vibe Mode 固件、凭据或 NVS 镜像。完整有线 BIN 则包含固定版本的官方 Vibe Mode 镜像和配套产品 bootloader，烧录会覆盖镜像范围内的原有设置。
 
@@ -49,13 +49,13 @@ idf.py --preview -B build-iris build
 python tools/package.py --build-dir build-iris
 ```
 
-打包所用 Python 环境需要 `cryptography`。脚本会检查实际构建配置，调用官方打包器和 Ideas 产品校验器，同时生成 `dist/mosaico-fluidbox-0.1.0.irisfw` 与 `dist/mosaico-fluidbox-0.1.0.bin`。旧的独立固件构建会被拒绝，避免再次直接转换成不完整的 Iris 包。构建与打包共用 `partitions.csv`。
+打包所用 Python 环境需要 `cryptography`。脚本会检查实际构建配置，调用官方打包器和 Ideas 产品校验器，同时生成 `dist/mosaico-fluidbox-0.2.0.irisfw` 与 `dist/mosaico-fluidbox-0.2.0.bin`。旧的独立固件构建会被拒绝，避免再次直接转换成不完整的 Iris 包。构建与打包共用 `partitions.csv`。
 
 设备操作通过工作区入口调用固定版本的官方 CLI：
 
 ```sh
 python mosaico.py iris device-status
-python mosaico.py iris system-update --bundle dist/mosaico-fluidbox-0.1.0.irisfw
+python mosaico.py iris system-update --bundle dist/mosaico-fluidbox-0.2.0.irisfw
 python mosaico.py iris logs --timeout 20
 python mosaico.py iris test enter-recovery
 ```

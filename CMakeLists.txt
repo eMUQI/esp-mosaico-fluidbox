@@ -12,5 +12,5 @@ list(APPEND EXTRA_COMPONENT_DIRS
     "${MOSAICO_UTILS_ROOT}/ESP-Iris/components/esp_iris"
     "${MOSAICO_UTILS_ROOT}/esp-mosaico-vibe-mode/components/esp_mosaico_app_recovery")
 include("${MOSAICO_UTILS_ROOT}/esp-mosaico-vibe-mode/cmake/mosaico_idf_project.cmake")
-project(mosaico-fluidbox VERSION 0.1.0)
+project(mosaico-fluidbox VERSION 0.2.0)
 include("${MOSAICO_UTILS_ROOT}/mosaico-tools/cmake/system_update.cmake")
