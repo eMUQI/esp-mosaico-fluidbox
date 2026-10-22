@@ -1,0 +1,3 @@
+[submodule "external/esp-mosaico-utils"]
+	path = external/esp-mosaico-utils
+	url = https://github.com/esp-mosaico/esp-mosaico-utils.git

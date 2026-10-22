@@ -1,6 +1,6 @@
 dependencies:
-  idf: ">=6.1,<6.2"
+  idf: ">=6.2,<6.3"
   espressif/esp_lcd_co5300: "2.1.0"
   espressif2022/bmi270: "1.1.0~2"
-  espressif/esp_tinyusb: "2.2.0"
+  espressif/esp_tinyusb: "2.2.1"
   espressif/i2c_bus: "1.5.2"

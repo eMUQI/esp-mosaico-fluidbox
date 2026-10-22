@@ -24,7 +24,7 @@ dependencies:
       type: service
     version: 2.1.0
   espressif/esp_tinyusb:
-    component_hash: 8e57a14ac14d8e4d4588b5b9222977b96475323bcebae3c838919bb4e8587887
+    component_hash: 9a73a76a6bc17907f6e523342ff6b1e440023e8aac2c11f4691212106ec24e66
     dependencies:
     - name: idf
       require: private
@@ -42,7 +42,7 @@ dependencies:
     - esp32p4
     - esp32h4
     - esp32s31
-    version: 2.2.0
+    version: 2.2.1
   espressif/i2c_bus:
     component_hash: 483112c1619c54c38d0b734fb25f1678733267858a77b7af2f48cc7db6dbbd84
     dependencies:
@@ -57,8 +57,18 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 1.5.2
+  espressif/mdns:
+    component_hash: 3ba256ac95e07c274be53cbd73f06cb846c403b61e8fbdf1be57bdb79db7a63e
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.12.0
   espressif/tinyusb:
-    component_hash: a72b7d67472914ab76309340fd50d578b31e310963d45ad0f81144bde3314752
+    component_hash: 16c8d774dab1f484d3e0c0f61105624d2424bbae864efd19818baf7b451b41e7
     dependencies:
     - name: idf
       require: private
@@ -72,7 +82,7 @@ dependencies:
     - esp32p4
     - esp32h4
     - esp32s31
-    version: 0.21.0~1
+    version: 0.21.0~2
   espressif2022/bmi270:
     component_hash: 6c6637680a233845d13961f23df39426a7fad9c02c6c289bf8facbb7f8624e22
     dependencies:
@@ -94,13 +104,14 @@ dependencies:
   idf:
     source:
       type: idf
-    version: 6.1.0
+    version: 6.2.0
 direct_dependencies:
 - espressif/esp_lcd_co5300
 - espressif/esp_tinyusb
 - espressif/i2c_bus
+- espressif/mdns
 - espressif2022/bmi270
 - idf
-manifest_hash: c794a122b9be7a479c8584346fcd47f771e2bae922496a4809b851bc51a4b011
+manifest_hash: 29ca89ba90a165fb0b6c43969e1a38442cc2d95b960bdce2ac62a0050f18daec
 target: esp32s31
 version: 3.0.0

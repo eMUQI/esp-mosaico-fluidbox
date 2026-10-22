@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "workspace": {
+    "projects_dir": ".",
+    "default_project": ".",
+    "run_dir": "dist/device-runs"
+  },
+  "dependencies": {
+    "bsp": "main",
+    "esp_iris": "external/esp-mosaico-utils/ESP-Iris"
+  },
+  "build": {"runner": "builtin"},
+  "devices": [{
+    "id": "esp-mosaico",
+    "name": "ESP-Mosaico",
+    "target": "esp32s31",
+    "status": "supported",
+    "default": true,
+    "preview_target": true,
+    "recovery_usb_ids": [{"vid": "303a", "pid": "4002"}]
+  }]
+}

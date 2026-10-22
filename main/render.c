@@ -8,6 +8,9 @@
 #include "config.h"
 #include "display.h"
 #include "esp_timer.h"
+#ifdef ESP_PLATFORM
+#include "esp_attr.h"
+#endif
 
 // CO5300 consumes the high byte of RGB565 first.
 #define SWAP16(v) ((uint16_t)((((v) >> 8) & 0xFF) | (((v) & 0xFF) << 8)))
@@ -26,7 +29,11 @@ static uint8_t s_disc_span[DISC_MAX_R + 1][2 * DISC_MAX_R + 1];
 typedef struct { int left, right; } band_extent_t;
 static band_extent_t s_extent[BAND_COUNT], s_previous[BAND_COUNT];
 
+#ifdef ESP_PLATFORM
+static EXT_RAM_BSS_ATTR sim_particle_view_t s_snapshot[PARTICLE_MAX];
+#else
 static sim_particle_view_t s_snapshot[PARTICLE_MAX];
+#endif
 static int16_t s_sx[PARTICLE_MAX];
 static int16_t s_sy[PARTICLE_MAX];
 static uint8_t s_sr[PARTICLE_MAX];
